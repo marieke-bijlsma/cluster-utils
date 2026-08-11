@@ -7,4 +7,23 @@ set -o pipefail
 ### Wrapper for sinfo with custom output format.
 ##
 #
-sinfo "${@}" -o "%P|%a|%D|%T|%w|%z|%c|%B|%m|%d|%f|%l|%s|%N|%E" | column -t -s '|'
+{
+    printf '%s\n' 'PARTITION|AVAIL|NODES|STATE|WEIGHT|S:C:T|CPUS|CPUEfctv|MEMORY|TMP_DISK|FEATURES|TIMELIMIT|ROOT|SHARE|NODELIST|REASON'
+
+    sinfo "${@}" -h -o "%P|%a|%D|%T|%w|%z|%c|%m|%d|%f|%l|%s|%N|%E" |
+    while IFS='|' read -r partition avail nodes state weight sct cpus memory tmpdisk features timelimit rootshare nodelist reason; do
+
+        cpuefctv=$(
+            scontrol show node "$nodelist" 2>/dev/null |
+            grep -o 'CPUEfctv=[^ ]*' |
+            cut -d= -f2 |
+            sort -nu |
+            paste -sd, -
+        )
+
+        printf '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n' \
+            "$partition" "$avail" "$nodes" "$state" "$weight" "$sct" \
+            "$cpus" "$cpuefctv" "$memory" "$tmpdisk" "$features" \
+            "$timelimit" "$rootshare" "$nodelist" "$reason"
+    done
+} | column -t -s '|'
