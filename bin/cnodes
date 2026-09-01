@@ -20,8 +20,6 @@ set -o pipefail
         max_mem=$((realmem - memspec))
 
         printf '%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n' \
-            "$partition" "$nodes" "$state" "$weight" "$sct" \
-            "$max_cpus" "$max_mem" "$tmpdisk" "$features" \
-            "$timelimit" "$nodelist" "$reason"
+            "$partition" "$nodes" "$state" "$weight" "$sct" "$max_cpus" "$max_mem" "$tmpdisk" "$features" "$timelimit" "$nodelist" "$reason"
     done
 } | column -t -s '|'
